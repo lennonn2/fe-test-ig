@@ -81,6 +81,7 @@ describe('Conditional validation schema', () => {
 
       const result = formSchema.safeParse(data)
 
+      console.log(result.error)
       expect(result.success).toEqual(true)
 
       if (result.success) {

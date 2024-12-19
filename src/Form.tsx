@@ -25,13 +25,14 @@ export const Form = () => {
   } = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     mode: 'onSubmit',
-    reValidateMode: 'onBlur',
+    reValidateMode: 'onChange',
     shouldUnregister: true,
   })
 
-  const priceRange = watch('priceRange')
-  const isPriceRangeFixed = priceRange === 'fixed'
+  const priceType = watch('price.type')
+  const isPriceTypeFixed = priceType === 'fixed'
 
+  // console.log('errors', errors)
   const saveData: SubmitHandler<FormSchemaType> = (data) => {
     console.log(data)
   }
@@ -70,61 +71,90 @@ export const Form = () => {
         </FormControl>
 
         <FormControl>
-          <FormLabel htmlFor="priceRange">Price Type</FormLabel>
+          <FormLabel htmlFor="price.type">Price Type</FormLabel>
           <RadioGroup
-            name="priceRange"
             id="priceRange"
             defaultValue="range"
             className={styles.radioButtons}
           >
-            <Radio value="fixed" {...register('priceRange')}>
+            <Radio
+              value="fixed"
+              {...register('price.type')}
+              data-testid="fixed-type"
+            >
               Fixed
             </Radio>
-            <Radio value="range" {...register('priceRange')}>
+            <Radio
+              value="range"
+              {...register('price.type')}
+              data-testid="range-type"
+            >
               Range
             </Radio>
           </RadioGroup>
         </FormControl>
 
-        {isPriceRangeFixed ? (
+        {isPriceTypeFixed ? (
+          <FormControl isInvalid={Boolean(errors.price?.amount?.message)}>
+            <FormLabel htmlFor="price.amount">Amount</FormLabel>
+            <InputGroup>
+              <InputLeftAddon>$</InputLeftAddon>
+              <Input
+                data-testid="fixed-amount"
+                id="minPrice"
+                type="number"
+                {...register('price.amount')}
+              />
+            </InputGroup>
+            {errors.price?.amount?.message ? (
+              <FormErrorMessage>
+                {errors.price?.amount?.message.toString()}
+              </FormErrorMessage>
+            ) : null}
+          </FormControl>
+        ) : (
           <div className={styles.priceRange}>
-            <FormControl isInvalid={Boolean(errors.minPrice?.message)}>
-              <FormLabel htmlFor="minPrice">Min</FormLabel>
+            <FormControl
+              isInvalid={Boolean(errors.price?.amount?.min?.message)}
+            >
+              <FormLabel htmlFor="price.amount.min">Min</FormLabel>
               <InputGroup>
                 <InputLeftAddon>$</InputLeftAddon>
                 <Input
-                  data-testid="minPrice"
+                  data-testid="min-amount"
                   id="minPrice"
                   type="number"
-                  {...register('minPrice')}
+                  {...register('price.amount.min')}
                 />
               </InputGroup>
-              {errors.minPrice?.message ? (
+              {errors.price?.amount?.min?.message ? (
                 <FormErrorMessage>
-                  {errors.minPrice.message.toString()}
+                  {errors.price?.amount?.min?.message.toString()}
                 </FormErrorMessage>
               ) : null}
             </FormControl>
 
-            <FormControl isInvalid={Boolean(errors.maxPrice?.message)}>
-              <FormLabel htmlFor="maxPrice">Max</FormLabel>
+            <FormControl
+              isInvalid={Boolean(errors.price?.amount?.max?.message)}
+            >
+              <FormLabel htmlFor="price.amount.max">Max</FormLabel>
               <InputGroup>
                 <InputLeftAddon>$</InputLeftAddon>
                 <Input
-                  data-testid="maxPrice"
+                  data-testid="max-amount"
                   id="maxPrice"
                   type="number"
-                  {...register('maxPrice')}
+                  {...register('price.amount.max')}
                 />
               </InputGroup>
-              {errors.maxPrice?.message ? (
+              {errors.price?.amount?.max?.message ? (
                 <FormErrorMessage>
-                  {errors.maxPrice.message.toString()}
+                  {errors.price?.amount?.max?.message.toString()}
                 </FormErrorMessage>
               ) : null}
             </FormControl>
           </div>
-        ) : null}
+        )}
 
         <Button data-testid="submit-button" type="submit" colorScheme="blue">
           Submit

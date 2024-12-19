@@ -8,51 +8,63 @@ const priceNumber = z
   })
   .transform((value) => Number(value))
   .refine((value) => !isNaN(value), {
-    message: 'Must be a valid number.',
+    message: 'Expected number, received string',
   })
   .refine((value) => value >= 0, {
     message: 'Number must be greater than 0',
   })
-  .optional()
 
 // Create zod validation schema for the form
 export const formSchema = z
   .object({
-    name: z.string().min(1),
+    name: z.string().min(1).max(10),
     email: z.string().email(),
-    priceRange: z.enum(['fixed', 'range']),
-    minPrice: priceNumber,
-    maxPrice: priceNumber,
+    price: z
+      .object({
+        type: z.enum(['fixed', 'range']),
+        amount: z.union([
+          z.union([z.number(), priceNumber]),
+          z.object({
+            min: z.union([z.number(), priceNumber]),
+            max: z.union([z.number(), priceNumber]),
+          }),
+        ]),
+      })
+      .optional(),
   })
   .refine(
     (data) => {
-      if (data.priceRange === 'fixed') {
-        // Ensure both minPrice and maxPrice are present and valid
-        return (
-          typeof data.minPrice === 'number' && typeof data.maxPrice === 'number'
-        )
+      if (data.price?.type === 'range') {
+        // Ensure both price.amount.min and price.amount.max are present and valid
+        if (typeof data.price.amount === 'object') {
+          return (
+            typeof data.price.amount?.min === 'number' &&
+            typeof data.price.amount?.max === 'number'
+          )
+        }
       }
       return true
     },
     {
-      message: 'Both Min and Max are required when Price Type is Fixed',
-      path: ['minPrice', 'maxPrice'],
+      message: 'Both Min and Max are required when Price Type is Range',
+      path: ['price.amount.min', 'price.amount.max'],
     }
   )
   .refine(
     (data) => {
       if (
-        data.priceRange === 'fixed' &&
-        data.minPrice !== undefined &&
-        data.maxPrice !== undefined
+        typeof data.price?.amount === 'object' &&
+        data.price.type === 'range' &&
+        data.price.amount?.min !== undefined &&
+        data.price.amount?.max !== undefined
       ) {
-        return data.minPrice < data.maxPrice
+        return data.price.amount.min < data.price.amount.max
       }
       return true
     },
     {
-      message: 'Min must be less than Max',
-      path: ['minPrice'],
+      message: 'Min must be less than max',
+      path: ['price.amount.min'],
     }
   )
 
