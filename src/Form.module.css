@@ -1,0 +1,25 @@
+.formWrapper {
+  align-items: center;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 1 500px;
+  min-width: 400px;
+  padding: 25px;
+}
+
+.radioButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.priceRange {
+  display: flex;
+  gap: 10px;
+}
