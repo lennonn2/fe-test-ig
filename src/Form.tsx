@@ -74,7 +74,7 @@ export const Form = () => {
           <FormLabel htmlFor="price.type">Price Type</FormLabel>
           <RadioGroup
             id="priceRange"
-            defaultValue="range"
+            defaultValue="fixed"
             className={styles.radioButtons}
           >
             <Radio
