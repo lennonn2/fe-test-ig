@@ -27,6 +27,13 @@ export const Form = () => {
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     shouldUnregister: true,
+    defaultValues: {
+      email: '',
+      name: '',
+      price: {
+        type: 'fixed',
+      },
+    },
   })
 
   const priceType = watch('price.type')
@@ -78,6 +85,7 @@ export const Form = () => {
             className={styles.radioButtons}
           >
             <Radio
+              defaultChecked
               value="fixed"
               {...register('price.type')}
               data-testid="fixed-type"
